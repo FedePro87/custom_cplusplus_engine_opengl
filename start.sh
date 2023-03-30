@@ -1,0 +1,2 @@
+g++ src/Main.cpp libraries/DearImGui/imgui.cpp libraries/DearImGui/imgui_demo.cpp libraries/DearImGui/imgui_draw.cpp libraries/DearImGui/imgui_tables.cpp libraries/DearImGui/imgui_widgets.cpp libraries/DearImGui/imgui_impl_glfw.cpp libraries/DearImGui/imgui_impl_opengl3.cpp libraries/glad.c -Iheaders -Isrc -Llibraries -lmingw32 -lglfw3 -lopengl32 -lgdi32 -luser32 -o fede_engine.exe
+./fede_engine.exe
