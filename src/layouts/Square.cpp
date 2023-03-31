@@ -19,7 +19,7 @@ class Square
         void main()
         {
             //gl_Position = vec4(pos, 1.0);
-            gl_Position = vec4(pos, 1.0);
+	        gl_Position = vec4(pos.x + pos.x * scale, pos.y + pos.y * scale, pos.z + pos.z * scale, 1.0);
             vertexColor = vec4(0.5, 0.0, 0.0, 1.0); // set the output variable to a dark-red color
         }
 
@@ -45,6 +45,10 @@ class Square
 			GLuint shader_program;
 		} render_mapping;
 
+        struct {
+			GLuint scale;
+		} uniforms_mapping;
+
         static const int vertices_number = 12;
         static const int indices_number = 4;
         float scale;
@@ -53,13 +57,6 @@ class Square
 
         Square(float scale)
         {
-            // GLfloat vertices[] = {
-            //     -0.25f, 0.4f, 1.0f, // Top-left
-            //     0.25f, 0.4f, 0.0f,  // Top-right
-            //     0.25f, -0.4f, 0.0f, // Bottom-right
-            //     -0.25f, -0.4f, 1.0f // Bottom-left
-            // };
-
             GLfloat vertices[] = {
                 -0.25f, 0.4f, 1.0f, // Top-left
                 0.25f, 0.4f, 0.0f,  // Top-right
@@ -96,36 +93,30 @@ class Square
 			vao.unbind();
 			vbo.unbind();
 			ebo.unbind();
+
+            // Gets ID of uniform called "scale"
+	        GLuint scale_id = glGetUniformLocation(shader_program.get_id(), "scale");
+            this->uniforms_mapping.scale = scale_id;
         }
 
-        void scale_object()
-        {
-            static float scale = 0.5f;
-            static float delta = 0.001f;
-
-            scale += delta;
-            if ((scale >= 1.5f) || (scale <= 0.5)) {
-                delta *= -1.0f;
-            }
-
-            GLfloat scaling[] = { scale, 0.0f,  0.0f,  0.0f,
-                     0.0f,  scale, 0.0f,  0.0f,
-                     0.0f,  0.0f,  scale, 0.0f,
-                     0.0f,  0.0f,  0.0f,  1.0f };
-    
-            GLint gScalingLocation = glGetUniformLocation(this->render_mapping.shader_program, "gScaling");
-            glUniformMatrix4fv(gScalingLocation, 1, GL_TRUE, scaling);
-        }
-
-        void render()
+        void render(float increase)
         {
             // Tell OpenGL which Shader Program we want to use
 			glUseProgram(this->render_mapping.shader_program);
 
+            // Assigns a value to the uniform; NOTE: Must always be done after activating the Shader Program
+		    glUniform1f( this->uniforms_mapping.scale, this->scale + increase);
+
 			// Bind the VAO so OpenGL knows to use it
 			glBindVertexArray(this->render_mapping.vao);
-			// Draw primitives, number of indices, datatype of indices, index of indices
+			
+            // Draw primitives, number of indices, datatype of indices, index of indices
 			glDrawElements(GL_POLYGON, Square::indices_number, GL_UNSIGNED_INT, 0);
+        }
+
+        void increase_scale()
+        {
+            this->scale = this->scale + 0.1f;
         }
 
         void cleanup()
